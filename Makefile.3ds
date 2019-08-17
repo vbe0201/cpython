@@ -18,11 +18,16 @@ ARCH     := -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS   := -g -Wall -O2 -mword-relocations -ffunction-sections \
 			-fomit-frame-pointer -ffast-math $(ARCH)
-CFLAGS   += $(INCLUDE) -DARM11 -D_3DS
 
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS  := -g $(ARCH)
+
+#---------------------------------------------------------------------------------
+# list of directories containing libraries, this must be the top level containing
+# include and lib
+#---------------------------------------------------------------------------------
+LIBDIRS  := $(PORTLIBS) $(CTRULIB)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -38,7 +43,12 @@ INVALID_CONFIG_ENTRIES := CHROOT FCHDIR FDATASYNC SETGROUPS SYMLINK
 
 export OUTPUT := $(CURDIR)/Python-$(PYVERSION)
 
-export INCLUDE := -I$(CURDIR)/$(BUILD)
+export INCLUDE := $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+			-I$(CURDIR)/$(BUILD)
+
+CFLAGS   += $(INCLUDE) -DARM11 -D_3DS
+
+export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 #---------------------------------------------------------------------------------
 .PHONY: all clean dist

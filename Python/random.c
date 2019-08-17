@@ -18,6 +18,11 @@
 #  if !defined(HAVE_GETRANDOM) && defined(HAVE_GETRANDOM_SYSCALL)
 #    include <sys/syscall.h>
 #  endif
+#  ifdef _3DS
+#    include "3ds/result.h"
+#    include "3ds/services/ps.h"
+#    include "3ds/types.h"
+#  endif
 #endif
 
 #ifdef _Py_MEMORY_SANITIZER
@@ -268,6 +273,52 @@ py_getentropy(char *buffer, Py_ssize_t size, int raise)
 }
 #endif /* defined(HAVE_GETENTROPY) && !defined(sun) */
 
+#ifdef _3DS
+
+static int
+ctru_urandom_init(int raise)
+{
+    Result res = 0;
+
+    res = psInit();
+    if (R_SUCCEEDED(res))
+        return 0;
+
+    if (raise)
+        PyErr_SetString(PyExc_RuntimeError,
+                        "3DS: Failed to get pxi:ps9 service handle.");
+    else
+        Py_FatalError("3DS: Failed to get pxi:ps9 service handle.");
+
+    return -1;
+}
+
+static int
+ctru_urandom(unsigned char *buffer, Py_ssize_t size, int raise)
+{
+    Result res = 0;
+
+    if (!psGetSessionHandle())
+        ctru_urandom_init(raise);
+    
+    res = PS_GenerateRandomBytes(buffer, size);
+
+    psExit();
+
+    if (R_SUCCEEDED(res))
+        return 0;
+    
+    if (raise)
+        PyErr_SetString(PyExc_RuntimeError,
+                        "3DS: PS_GenerateRandomBytes failed.");
+    else
+        Py_FatalError("3DS: PS_GenerateRandomBytes failed.");
+    
+    return -1;
+}
+
+#endif
+
 
 static struct {
     int fd;
@@ -496,6 +547,8 @@ pyurandom(void *buffer, Py_ssize_t size, int blocking, int raise)
 
 #ifdef MS_WINDOWS
     return win32_urandom((unsigned char *)buffer, size, raise);
+#elif defined(_3DS)
+    return ctru_urandom((unsigned char *)buffer, size, raise);
 #else
 
 #if defined(PY_GETRANDOM) || defined(PY_GETENTROPY)

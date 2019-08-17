@@ -830,6 +830,8 @@ get_inheritable(int fd, int raise)
     }
 
     return (flags & HANDLE_FLAG_INHERIT);
+#elif defined(_3DS)
+    return 1; /* XXX: hack */
 #else
     int flags;
 
@@ -868,6 +870,10 @@ set_inheritable(int fd, int inheritable, int raise, int *atomic_flag_works)
 #endif
     int flags, new_flags;
     int res;
+#endif
+
+#ifdef _3DS
+    return 0; /* XXX: hack */
 #endif
 
     /* atomic_flag_works can only be used to make the file descriptor

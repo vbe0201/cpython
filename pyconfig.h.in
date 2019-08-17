@@ -1424,6 +1424,11 @@
 /* Define if you want to compile in rudimentary thread support */
 #undef WITH_THREAD
 
+/* Since we have our own implementation of a threading backend, this is safe to set. */
+//#ifdef _3DS
+//#define WITH_THREAD 1
+//#endif
+
 /* Define if you want pymalloc to be disabled when running under valgrind */
 #undef WITH_VALGRIND
 

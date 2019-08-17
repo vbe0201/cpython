@@ -91,6 +91,11 @@ static size_t _pythread_stacksize = 0;
 #include "thread_nt.h"
 #endif
 
+//#if defined(_3DS)
+//#define PYTHREAD_NAME "ctru"
+//#include "thread_ctru.h"
+//#endif
+
 
 /*
 #ifdef FOOBAR_THREADS

@@ -7,6 +7,11 @@
 #include <mach/mach_time.h>   /* mach_absolute_time(), mach_timebase_info() */
 #endif
 
+#ifdef _3DS
+#include "3ds/os.h"
+#include "3ds/types.h"
+#endif
+
 #define _PyTime_check_mul_overflow(a, b) \
     (assert(b > 0), \
      (_PyTime_t)(a) < _PyTime_MIN / (_PyTime_t)(b) \
@@ -586,8 +591,21 @@ pygettimeofday(_PyTime_t *tp, _Py_clock_info_t *info, int raise)
         info->resolution = timeIncrement * 1e-7;
         info->adjustable = 1;
     }
+#elif defined(_3DS)
+    u64 time;
 
-#else   /* MS_WINDOWS */
+    assert(info == NULL || raise);
+
+    time = osGetTime();
+
+    if (info) {
+        info->implementation = "osGetTime()";
+        info->resolution = 1e-6;
+        info->monotonic= 0;
+        info->adjustable = 1; 
+    }
+
+#else   /* MS_WINDOWS && _3DS */
     int err;
 #ifdef HAVE_CLOCK_GETTIME
     struct timespec ts;
@@ -726,8 +744,22 @@ pymonotonic(_PyTime_t *tp, _Py_clock_info_t *info, int raise)
         info->monotonic = 1;
         info->adjustable = 0;
     }
+#elif defined(_3DS)
+    u64 time;
 
-#else
+    assert(info == NULL || raise);
+
+    time = osGetTime();
+    *tp = time * MS_TO_NS;
+
+    if (info) {
+        info->implementation = "osGetTime()";
+        info->resolution = time / 1e+3 + time * 1e-3;
+        info->monotonic = 1;
+        info->adjustable = 0;
+    }
+
+#else   /* MS_WINDOWS && __APPLE__ && _3DS */
     struct timespec ts;
 #ifdef CLOCK_HIGHRES
     const clockid_t clk_id = CLOCK_HIGHRES;

@@ -16,6 +16,8 @@
 *.profraw
 *.dyn
 .gdb_history
+configurePython
+distPython
 Doc/build/
 Doc/venv/
 Doc/.venv/
@@ -27,6 +29,7 @@ Lib/lib2to3/*.pickle
 Lib/test/data/*
 Makefile
 Makefile.pre
+makePython
 Misc/python.pc
 Misc/python-config.sh
 Modules/Setup
@@ -61,6 +64,7 @@ PCbuild/.vs/
 PCbuild/amd64/
 PCbuild/obj/
 PCbuild/win32/
+Python-*/
 .purify
 Parser/pgen
 __pycache__

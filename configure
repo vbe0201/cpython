@@ -3256,6 +3256,9 @@ then
 	*-*-cygwin*)
 		ac_sys_system=Cygwin
 		;;
+  arm-none-eabi*)
+    ac_sys_system=Horizon
+    ;;
 	*)
 		# for now, limit cross builds to known configurations
 		MACHDEP="unknown"
@@ -3301,6 +3304,9 @@ if test "$cross_compiling" = yes; then
 	*-*-cygwin*)
 		_host_cpu=
 		;;
+  arm-none-eabi*)
+    _host_cpu=$host_cpu
+    ;;
 	*)
 		# for now, limit cross builds to known configurations
 		MACHDEP="unknown"

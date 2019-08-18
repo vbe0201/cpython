@@ -178,6 +178,7 @@ corresponding Unix manual entries for more information on calls.");
 #define fsync _commit
 #else
 /* Unix functions that the configure script doesn't check for */
+#ifndef _3DS
 #define HAVE_EXECV      1
 #define HAVE_FORK       1
 #if defined(__USLC__) && defined(__SCO_VERSION__)       /* SCO UDK Compiler */
@@ -194,6 +195,7 @@ corresponding Unix manual entries for more information on calls.");
 #define HAVE_SYSTEM     1
 #define HAVE_WAIT       1
 #define HAVE_TTYNAME    1
+#endif  /* ! _3DS */
 #endif  /* _MSC_VER */
 #endif  /* ! __WATCOMC__ || __QNX__ */
 
@@ -4166,6 +4168,7 @@ os_system_impl(PyObject *module, PyObject *command)
 #endif /* HAVE_SYSTEM */
 
 
+#ifdef HAVE_UMASK
 /*[clinic input]
 os.umask
 
@@ -4184,6 +4187,8 @@ os_umask_impl(PyObject *module, int mask)
         return posix_error();
     return PyLong_FromLong((long)i);
 }
+
+#endif /* HAVE_UMASK */
 
 #ifdef MS_WINDOWS
 

@@ -30,6 +30,11 @@
 #endif /* MS_WINDOWS */
 #endif /* !__WATCOMC__ || __QNX__ */
 
+#ifdef _3DS
+static long int timezone = 0;
+static int daylight = 0;
+#endif
+
 /* Forward declarations */
 static int pysleep(_PyTime_t);
 static PyObject* floattime(_Py_clock_info_t *info);

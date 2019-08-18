@@ -39,7 +39,11 @@ ANAME     = libpython$(shell echo $(PYVERSION) | cut -b 1-3).a
 
 # Due to misleading newlib headers, certain functions may be marked as present
 # when they're in fact not. These will be later stripped out from pyconfig.h.
-INVALID_CONFIG_ENTRIES := CHROOT FCHDIR FDATASYNC SETGROUPS SYMLINK
+# On top of that, there might be headers and functions that are present, but
+# we're better off without them. So we leave these out too.
+INVALID_CONFIG_ENTRIES := CHROOT FCHDIR FDATASYNC SETGROUPS SYMLINK \
+			CLOCK_GETRES CLOCK_GETTIME CLOCK_SETTIME DECL_TZNAME HAVE_TZNAME \
+			SCHED_H SYS_RESOURCE_H SYS_STATVFS_H UTIME_H
 
 export OUTPUT := $(CURDIR)/Python-$(PYVERSION)
 

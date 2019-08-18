@@ -10368,7 +10368,7 @@ $as_echo "$with_dbmliborder" >&6; }
 # This is used to generate Setup.config
 
 USE_THREAD_MODULE=""
-#THREADOBJ="Python/thread.o"
+THREADOBJ="Python/thread.o"
 
 
 

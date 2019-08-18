@@ -109,6 +109,125 @@ PyCOND_TIMEDWAIT(PyCOND_T *cond, PyMUTEX_T *mut, long long us)
         return 0;
 }
 
+#elif defined(_3DS)
+/*
+ * Nintendo 3DS support
+ * 
+ * Condition variable implementation is done with svcArbitrateAddress
+ * syscall and userspace locks.
+ */
+#include <sys/time.h>
+
+#include "3ds/svc.h"
+#include "3ds/synchronization.h"
+
+#define Py_HAVE_CONDVAR
+
+/* The following functions return 0 on success, nonzero on error. */
+typedef LightLock PyMUTEX_T;
+
+Py_LOCAL_INLINE(int)
+PyMUTEX_INIT(PyMUTEX_T *mut) {
+    LightLock_Init(mut);
+    return 0;
+}
+
+Py_LOCAL_INLINE(int)
+PyMUTEX_FINI(PyMUTEX_T *mut) {
+    return 0;
+}
+
+Py_LOCAL_INLINE(int)
+PyMUTEX_LOCK(PyMUTEX_T *mut) {
+    LightLock_Lock(mut);
+    return 0;
+}
+
+Py_LOCAL_INLINE(int)
+PyMUTEX_UNLOCK(PyMUTEX_T *mut) {
+    LightLock_Unlock(mut);
+    return 0;
+}
+
+typedef struct {
+    PyMUTEX_T mut;
+} PyCOND_T;
+
+Py_LOCAL_INLINE(int)
+PyCOND_INIT(PyCOND_T *cond, PyMUTEX_T *mut) {
+    if (mut == NULL) {
+        PyMUTEX_INIT(&cond->mut);
+    } else {
+        PyMUTEX_INIT(mut); /* XXX: Is this actually necessary? */
+        cond->mut = *mut;
+    }
+
+    return 0;
+}
+
+Py_LOCAL_INLINE(int)
+PyCOND_FINI(PyCOND_T *cond) {
+    return 0;
+}
+
+Py_LOCAL_INLINE(int)
+PyCOND_SIGNAL(PyCOND_T *cond) {
+    Handle arbiter = __sync_get_arbiter();
+    return svcArbitrateAddress(arbiter, (u32)cond->mut, ARBITRATION_SIGNAL, 1, 0);
+}
+
+Py_LOCAL_INLINE(int)
+PyCOND_BROADCAST(PyCOND_T *cond) {
+    if (&cond->mut == NULL)
+        return 0;
+    
+    Handle arbiter = __sync_get_arbiter();
+    return svcArbitrateAddress(arbiter, (u32)cond->mut, ARBITRATION_SIGNAL, -1, 0);
+}
+
+Py_LOCAL_INLINE(int)
+PyCOND_WAIT(PyCOND_T *cond, PyMUTEX_T *mut) {
+    if (&cond->mut != mut) {
+        if (&cond->mut != NULL)
+            return -1;
+        __atomic_compare_exchange_n(&cond->mut, mut, 0, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+    }
+
+    PyMUTEX_UNLOCK(mut);
+
+    Handle arbiter = __sync_get_arbiter();
+    svcArbitrateAddress(arbiter, (u32)cond->mut, ARBITRATION_WAIT_IF_LESS_THAN, 2, 0);
+
+    PyMUTEX_LOCK(mut);
+
+    return 0;
+}
+
+/* Returns 0 for success, 1 on timeout, -1 on error. */
+Py_LOCAL_INLINE(int)
+PyCOND_TIMEDWAIT(PyCOND_T *cond, PyMUTEX_T *mut, PY_LONG_LONG us) {
+    if (&cond->mut != mut) {
+        if (&cond->mut != NULL)
+            return -1;
+        __atomic_compare_exchange_n(&cond->mut, mut, 0, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+    }
+
+    clock_t start, end;
+    s64 elapsed;
+
+    start = clock();
+    PyMUTEX_UNLOCK(mut);
+
+    Handle arbiter = __sync_get_arbiter();
+    svcArbitrateAddress(arbiter, (u32)cond->mut, ARBITRATION_WAIT_IF_LESS_THAN_TIMEOUT, 2, us * 1000);
+
+    PyMUTEX_LOCK(mut);
+    end = clock();
+
+    elapsed = (s64)(end - start) * 1000000;
+    return elapsed > us;
+}
+
 #elif defined(NT_THREADS)
 /*
  * Windows (XP, 2003 server and later, as well as (hopefully) CE) support

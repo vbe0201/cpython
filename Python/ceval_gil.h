@@ -79,9 +79,15 @@ static unsigned long gil_interval = DEFAULT_INTERVAL;
         Py_FatalError("PyMUTEX_UNLOCK(" #mut ") failed"); };
 
 #define COND_T PyCOND_T
+#ifdef _3DS
+#define COND_INIT(cond, mut) \
+    if (PyCOND_INIT(&(cond), &(mut))) { \
+        Py_FatalError("PyCOND_INIT(" #cond ") failed"); };
+#else
 #define COND_INIT(cond) \
     if (PyCOND_INIT(&(cond))) { \
         Py_FatalError("PyCOND_INIT(" #cond ") failed"); };
+#endif
 #define COND_FINI(cond) \
     if (PyCOND_FINI(&(cond))) { \
         Py_FatalError("PyCOND_FINI(" #cond ") failed"); };
@@ -138,9 +144,16 @@ static void create_gil(void)
 #ifdef FORCE_SWITCHING
     MUTEX_INIT(switch_mutex);
 #endif
+#ifdef _3DS
+    COND_INIT(gil_cond, gil_mutex);
+#ifdef FORCE_SWITCHING
+    COND_INIT(switch_cond, switch_mutex);
+#endif
+#else
     COND_INIT(gil_cond);
 #ifdef FORCE_SWITCHING
     COND_INIT(switch_cond);
+#endif
 #endif
     _Py_atomic_store_relaxed(&gil_last_holder, 0);
     _Py_ANNOTATE_RWLOCK_CREATE(&gil_locked);

@@ -225,6 +225,81 @@ _ctru_acu_get_last_detail_error_code(PyObject *self, PyObject *args)
 
 /* end ac */
 
+/* am */
+
+PyDoc_STRVAR(_ctru_am_init__doc__,
+"Initializes AM. This doesn't initialize with \"am:app\", see amAppInit().");
+
+static PyObject *
+_ctru_am_init(PyObject *self, PyObject *args)
+{
+    Result result;
+
+    result = amInit();
+    _CTRU_ASSERT_IPC_OK(result);
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(_ctru_am_app_init__doc__,
+"Initializes AM with a service which has access to the amapp-commands. This should only be used when using the amapp commands, not non-amapp AM commands.");
+
+static PyObject *
+_ctru_am_app_init(PyObject *self, PyObject *args)
+{
+    Result result;
+
+    result = amAppInit();
+    _CTRU_ASSERT_IPC_OK(result);
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(_ctru_am_exit__doc__,
+"Exits AM.");
+
+static PyObject *
+_ctru_am_exit(PyObject *self, PyObject *args)
+{
+    amExit();
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(_ctru_am_get_session_handle__doc__,
+"Gets the current AM session handle.");
+
+static PyObject *
+_ctru_am_get_session_handle(PyObject *self, PyObject *args)
+{
+    Handle *handle;
+
+    handle = amGetSessionHandle();
+
+    return PyLong_FromUnsignedLong(*handle);
+}
+
+PyDoc_STRVAR(_ctru_am_get_title_count__doc__,
+"Gets the number of titles for a given media type.");
+
+static PyObject *
+_ctru_am_get_title_count(PyObject *self, PyObject *args)
+{
+    Result result;
+    unsigned short int mediatype;
+    u32 count;
+
+    if (!PyArg_ParseTuple(args, "H", &mediatype) || mediatype > 2)
+        return NULL;
+
+    result = AM_GetTitleCount(mediatype, &count);
+    _CTRU_ASSERT_IPC_OK(result);
+
+    return PyLong_FromUnsignedLong(count);
+}
+
+/* end am */
+
 /* hb */
 
 PyDoc_STRVAR(_ctru_hb_init__doc__,
@@ -272,6 +347,7 @@ PyDoc_STRVAR(_ctru_hb_get_bootloader_addresses__doc__,
 static PyObject *
 _ctru_hb_get_bootloader_addresses(PyObject *self, PyObject *args)
 {
+    /* TODO */
     PyErr_SetString(PyExc_NotImplementedError, "Help wanted.");
     return NULL;
 }
@@ -717,6 +793,12 @@ static PyMethodDef _ctru_methods[] = {
     {"acu_get_proxy_password", _ctru_acu_get_proxy_password, METH_NOARGS, _ctru_acu_get_proxy_password__doc__},
     {"acu_get_last_error_code", _ctru_acu_get_last_error_code, METH_NOARGS, _ctru_acu_get_last_error_code__doc__},
     {"acu_get_last_detail_error_code", _ctru_acu_get_last_detail_error_code, METH_NOARGS, _ctru_acu_get_last_detail_error_code__doc__},
+    /* am */
+    {"am_init", _ctru_am_init, METH_NOARGS, _ctru_am_init__doc__},
+    {"am_app_init", _ctru_am_app_init, METH_NOARGS, _ctru_am_app_init__doc__},
+    {"am_exit", _ctru_am_exit, METH_NOARGS, _ctru_am_exit__doc__},
+    {"am_get_session_handle", _ctru_am_get_session_handle, METH_NOARGS, _ctru_am_get_session_handle__doc__},
+    {"am_get_title_count", _ctru_am_get_title_count, METH_VARARGS, _ctru_am_get_title_count__doc__},
     /* hb */
     {"hb_init", _ctru_hb_init, METH_NOARGS, _ctru_hb_init__doc__},
     {"hb_exit", _ctru_hb_exit, METH_NOARGS, _ctru_hb_exit__doc__},

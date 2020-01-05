@@ -46,7 +46,7 @@ _noop(void)
 static void
 PyThread__init_thread(void)
 {
-    Thread t = threadCreate((void *) _noop, NULL, THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_CPU_ID, false);
+    Thread t = threadCreate((void *)_noop, NULL, THREAD_STACK_SIZE, THREAD_PRIORITY, THREAD_CPU_ID, false);
     threadJoin(t, U64_MAX);
     threadFree(t);
 }

@@ -91,7 +91,7 @@ static size_t _pythread_stacksize = 0;
 #include "thread_nt.h"
 #endif
 
-#if defined(_3DS)
+#ifdef _3DS
 #define PYTHREAD_NAME "ctru"
 #include "thread_ctru.h"
 #endif
@@ -388,6 +388,7 @@ static PyStructSequence_Desc threadinfo_desc = {
 };
 
 /* Conflicts with ThreadInfoType from 3ds/synchronization.h. */
+/*static PyTypeObject ThreadInfoType;*/
 static PyTypeObject _ThreadInfoType;
 
 PyObject*

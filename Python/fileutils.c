@@ -831,7 +831,9 @@ get_inheritable(int fd, int raise)
 
     return (flags & HANDLE_FLAG_INHERIT);
 #elif defined(_3DS)
-    return 1; /* XXX: hack */
+    // We don't have the fcntl syscall.
+    // That's why we just return 1 to indicate success.
+    return 1;
 #else
     int flags;
 
@@ -873,7 +875,9 @@ set_inheritable(int fd, int inheritable, int raise, int *atomic_flag_works)
 #endif
 
 #ifdef _3DS
-    return 0; /* XXX: hack */
+    // We don't have the fcntl syscall.
+    // That's why we just return 0 to indicate success.
+    return 0;
 #endif
 
     /* atomic_flag_works can only be used to make the file descriptor

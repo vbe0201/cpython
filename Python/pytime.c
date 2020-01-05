@@ -601,7 +601,7 @@ pygettimeofday(_PyTime_t *tp, _Py_clock_info_t *info, int raise)
     if (info) {
         info->implementation = "osGetTime()";
         info->resolution = 1e-6;
-        info->monotonic= 0;
+        info->monotonic = 0;
         info->adjustable = 1; 
     }
 

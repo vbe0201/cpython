@@ -266,7 +266,8 @@ PyCOND_WAIT(PyCOND_T *cond, PyMUTEX_T *mut)
             return -1;
 
         /* Exchange the locks through an atomic read-modify operation. */
-        if (!AtomicCompareSwap(&cond->mut, 0, mut))
+        int temp = 0;
+        if (!AtomicCompareSwap(&cond->mut, &temp, mut))
             return -1;
     }
 
@@ -310,7 +311,8 @@ PyCOND_TIMEDWAIT(PyCOND_T *cond, PyMUTEX_T *mut, PY_LONG_LONG us)
             return -1;
 
         /* Exchange the locks through an atomic read-modify operation. */
-        if (!AtomicCompareSwap(&cond->mut, 0, mut))
+        int temp = 0;
+        if (!AtomicCompareSwap(&cond->mut, &temp, mut))
             return -1;
     }
 

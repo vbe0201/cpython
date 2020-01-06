@@ -3149,6 +3149,11 @@ pthread_create (NULL, NULL, start_routine, NULL)]])],[
     THREADOBJ="Python/thread.o"
     USE_THREAD_MODULE=""])
 
+    AC_CHECK_LIB(ctru, threadCreate, [AC_DEFINE(WITH_THREAD)
+    LIBS="$LIBS -lctru"
+    THREADOBJ="Python/thread.o"
+    USE_THREAD_MODULE=""])
+
     if test "$posix_threads" != "yes"; then
       AC_CHECK_LIB(thread, thr_create, [AC_DEFINE(WITH_THREAD)
       LIBS="$LIBS -lthread"

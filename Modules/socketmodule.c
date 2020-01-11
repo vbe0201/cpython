@@ -398,6 +398,10 @@ remove_unusable_flags(PyObject *m)
   /* Do not include addrinfo.h for MSVC7 or greater. 'addrinfo' and
    * EAI_* constants are defined in (the already included) ws2tcpip.h.
    */
+#elif defined(_3DS)
+  /* When compiling for the 3DS, the addrinfo struct from addrinfo.h
+   * and the one provided by ctrulib bite each other.
+   */
 #else
 #  include "addrinfo.h"
 #endif

@@ -406,6 +406,10 @@ remove_unusable_flags(PyObject *m)
 #  include "addrinfo.h"
 #endif
 
+#ifdef _3DS
+# include <netdb.h>
+#endif
+
 #ifndef HAVE_INET_PTON
 #if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_LONGHORN)
 int inet_pton(int af, const char *src, void *dst);
@@ -3027,7 +3031,11 @@ sock_listen(PySocketSockObject *s, PyObject *args)
 {
     /* We try to choose a default backlog high enough to avoid connection drops
      * for common workloads, yet not too high to limit resource usage. */
+#ifdef _3DS
+    int backlog = 5;
+#else
     int backlog = Py_MIN(SOMAXCONN, 128);
+#endif
     int res;
 
     if (!PyArg_ParseTuple(args, "|i:listen", &backlog))
@@ -5321,6 +5329,11 @@ for a host.  The host argument is a string giving a host name or IP number.");
 static PyObject *
 socket_getservbyname(PyObject *self, PyObject *args)
 {
+#if defined(_3DS)
+    PyErr_SetString(PyExc_OSError, "service/proto not found");
+    return NULL;
+#endif
+
     const char *name, *proto=NULL;
     struct servent *sp;
     if (!PyArg_ParseTuple(args, "s|s:getservbyname", &name, &proto))
@@ -5351,6 +5364,11 @@ otherwise any protocol will match.");
 static PyObject *
 socket_getservbyport(PyObject *self, PyObject *args)
 {
+#if defined(_3DS)
+    PyErr_SetString(PyExc_OSError, "port/proto not found");
+    return NULL;
+#endif
+
     int port;
     const char *proto=NULL;
     struct servent *sp;
@@ -5387,6 +5405,11 @@ otherwise any protocol will match.");
 static PyObject *
 socket_getprotobyname(PyObject *self, PyObject *args)
 {
+#if defined(_3DS)
+    PyErr_SetString(PyExc_OSError, "protocol not found");
+    return NULL;
+#endif
+
     const char *name;
     struct protoent *sp;
     if (!PyArg_ParseTuple(args, "s:getprotobyname", &name))
@@ -6916,6 +6939,9 @@ PyInit__socket(void)
 #ifdef SOCK_RAW
     /* SOCK_RAW is marked as optional in the POSIX specification */
     PyModule_AddIntMacro(m, SOCK_RAW);
+#endif
+#ifdef _3DS
+#define SOCK_SEQPACKET 5
 #endif
     PyModule_AddIntMacro(m, SOCK_SEQPACKET);
 #if defined(SOCK_RDM)

@@ -406,10 +406,6 @@ remove_unusable_flags(PyObject *m)
 #  include "addrinfo.h"
 #endif
 
-#ifdef _3DS
-# include <netdb.h>
-#endif
-
 #ifndef HAVE_INET_PTON
 #if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_LONGHORN)
 int inet_pton(int af, const char *src, void *dst);
@@ -1494,10 +1490,17 @@ makesockaddr(SOCKET_T sockfd, struct sockaddr *addr, size_t addrlen, int proto)
     default:
         /* If we don't know the address family, don't raise an
            exception -- return it as an (int, bytes) tuple. */
+#if defined(_3DS)
+        return Py_BuildValue("iy#",
+                             addr->sa_family,
+                             addr->sa_data,
+                             14);
+#else
         return Py_BuildValue("iy#",
                              addr->sa_family,
                              addr->sa_data,
                              sizeof(addr->sa_data));
+#endif
 
     }
 }

@@ -5332,8 +5332,7 @@ socket_getservbyname(PyObject *self, PyObject *args)
 #if defined(_3DS)
     PyErr_SetString(PyExc_OSError, "service/proto not found");
     return NULL;
-#endif
-
+#else
     const char *name, *proto=NULL;
     struct servent *sp;
     if (!PyArg_ParseTuple(args, "s|s:getservbyname", &name, &proto))
@@ -5346,6 +5345,7 @@ socket_getservbyname(PyObject *self, PyObject *args)
         return NULL;
     }
     return PyLong_FromLong((long) ntohs(sp->s_port));
+#endif
 }
 
 PyDoc_STRVAR(getservbyname_doc,
@@ -5367,8 +5367,7 @@ socket_getservbyport(PyObject *self, PyObject *args)
 #if defined(_3DS)
     PyErr_SetString(PyExc_OSError, "port/proto not found");
     return NULL;
-#endif
-
+#else
     int port;
     const char *proto=NULL;
     struct servent *sp;
@@ -5388,6 +5387,7 @@ socket_getservbyport(PyObject *self, PyObject *args)
         return NULL;
     }
     return PyUnicode_FromString(sp->s_name);
+#endif
 }
 
 PyDoc_STRVAR(getservbyport_doc,
@@ -5408,8 +5408,7 @@ socket_getprotobyname(PyObject *self, PyObject *args)
 #if defined(_3DS)
     PyErr_SetString(PyExc_OSError, "protocol not found");
     return NULL;
-#endif
-
+#else
     const char *name;
     struct protoent *sp;
     if (!PyArg_ParseTuple(args, "s:getprotobyname", &name))
@@ -5422,6 +5421,7 @@ socket_getprotobyname(PyObject *self, PyObject *args)
         return NULL;
     }
     return PyLong_FromLong((long) sp->p_proto);
+#endif
 }
 
 PyDoc_STRVAR(getprotobyname_doc,

@@ -288,10 +288,6 @@ http://cvsweb.netbsd.org/bsdweb.cgi/src/lib/libc/net/getaddrinfo.c.diff?r1=1.82&
 #include <net/if.h>
 #endif
 
-#ifdef _3DS
-#include <netinet/tcp.h>
-#endif
-
 /* Generic socket object definitions and includes */
 #define PySocket_BUILDING_SOCKET
 #include "socketmodule.h"

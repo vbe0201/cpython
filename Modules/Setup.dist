@@ -205,14 +205,14 @@ select selectmodule.c	# select(2); not on ancient System V
 _csv _csv.c
 
 # Socket module helper for socket(2)
-_socket socketmodule.c
+#_socket socketmodule.c
 
 # Socket module helper for SSL support; you must comment out the other
 # socket line above, and possibly edit the SSL variable:
-#SSL=/usr/local/ssl
-#_ssl _ssl.c \
-#	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
-#	-L$(SSL)/lib -lssl -lcrypto
+SSL=$(DEVKITPRO)/portlibs/3ds
+_ssl _ssl.c \
+	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
+	-L$(SSL)/lib -lssl -lcrypto
 
 # The crypt module is now disabled by default because it breaks builds
 # on many systems (where -lcrypt is needed), e.g. Linux (I believe).

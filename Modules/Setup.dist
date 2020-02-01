@@ -205,7 +205,7 @@ select selectmodule.c	# select(2); not on ancient System V
 _csv _csv.c
 
 # Socket module helper for socket(2)
-#_socket socketmodule.c
+_socket socketmodule.c
 
 # Socket module helper for SSL support; you must comment out the other
 # socket line above, and possibly edit the SSL variable:

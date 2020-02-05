@@ -1,9 +1,15 @@
 /* Socket module header file */
 
+/* Needed for the sockaddr_* symbols on the 3DS. */
 #ifdef _3DS
 #  include <sys/socket.h>
 #  include <netinet/in.h>
 #  include <netinet/tcp.h>
+
+/* Since Python expects these constants to be macros, we need to define them. */
+#define TCP_NODELAY (TCP_NODELAY)
+#define TCP_MAXSEG  (TCP_MAXSEG)
+
 #endif /* _3DS */
 
 /* Includes needed for the sockaddr_* symbols below */

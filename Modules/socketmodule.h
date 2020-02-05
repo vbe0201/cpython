@@ -1,7 +1,16 @@
 /* Socket module header file */
 
+#ifdef _3DS
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#  include <netinet/tcp.h>
+#endif /* _3DS */
+
 /* Includes needed for the sockaddr_* symbols below */
 #ifndef MS_WINDOWS
+
+#ifndef _3DS
+
 #ifdef __VMS
 #   include <socket.h>
 # else
@@ -11,6 +20,8 @@
 # if !defined(__CYGWIN__)
 #  include <netinet/tcp.h>
 # endif
+
+#endif /* !_3DS */
 
 #else /* MS_WINDOWS */
 # include <winsock2.h>

@@ -5427,11 +5427,11 @@ PyInit__ssl(void)
         return NULL;
 
 #ifdef _3DS
-    unsigned char *buffer;
+    unsigned char buffer[32];
 
-    ctru_urandom(buffer, 50);
+    ctru_urandom(buffer, 32);
 
-    RAND_add(buffer, 50, 50);
+    RAND_add(buffer, 32, 32);
 #endif
 
 

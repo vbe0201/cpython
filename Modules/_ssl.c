@@ -4749,6 +4749,7 @@ PySSL_RAND(int len, int pseudo)
     bytes = PyBytes_FromStringAndSize(NULL, len);
     if (bytes == NULL)
         return NULL;
+#ifndef _3DS
     if (pseudo) {
         ok = RAND_pseudo_bytes((unsigned char*)PyBytes_AS_STRING(bytes), len);
         if (ok == 0 || ok == 1)
@@ -4759,6 +4760,13 @@ PySSL_RAND(int len, int pseudo)
         if (ok == 1)
             return bytes;
     }
+#else
+    extern int ctru_urandom(unsigned char *buffer, Py_ssize_t size, int raise);
+
+    ok = ctru_urandom((unsigned char*)PyBytes_AS_STRING(bytes), len, 1);
+    if (ok >= 0)
+        return bytes;
+#endif
     Py_DECREF(bytes);
 
     err = ERR_get_error();

@@ -4732,6 +4732,48 @@ _ssl_RAND_add_impl(PyObject *module, Py_buffer *view, double entropy)
     return Py_None;
 }
 
+#ifdef _3DS
+#include "3ds/result.h"
+#include "3ds/services/ps.h"
+#include "3ds/types.h"
+
+static int
+ctru_urandom_init()
+{
+    Result res = 0;
+
+    res = psInit();
+    if (R_SUCCEEDED(res))
+        return 0;
+
+    PyErr_SetString(PyExc_OSError,
+                    "3DS: Failed to get pxi:ps9 service handle.");
+
+    return -1;
+}
+
+static int
+ctru_urandom(unsigned char *buffer, Py_ssize_t size)
+{
+    Result res = 0;
+
+    if (!psGetSessionHandle())
+        ctru_urandom_init();
+
+    res = PS_GenerateRandomBytes(buffer, size);
+
+    psExit();
+
+    if (R_SUCCEEDED(res))
+        return 0;
+
+    PyErr_SetString(PyExc_OSError,
+                    "3DS: PS_GenerateRandomBytes failed.");
+
+    return -1;
+}
+#endif
+
 static PyObject *
 PySSL_RAND(int len, int pseudo)
 {
@@ -4761,10 +4803,8 @@ PySSL_RAND(int len, int pseudo)
             return bytes;
     }
 #else
-    extern int ctru_urandom(unsigned char *buffer, Py_ssize_t size, int raise);
-
-    ok = ctru_urandom((unsigned char*)PyBytes_AS_STRING(bytes), len, 1);
-    if (ok >= 0)
+    ok = ctru_urandom((unsigned char*)PyBytes_AS_STRING(bytes), len);
+    if (R_SUCCEEDED(ok))
         return bytes;
 #endif
     Py_DECREF(bytes);

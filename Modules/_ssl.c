@@ -5426,6 +5426,14 @@ PyInit__ssl(void)
     if (PyType_Ready(&PySSLSession_Type) < 0)
         return NULL;
 
+#ifdef _3DS
+    unsigned char *buffer;
+
+    ctru_urandom(buffer, 50);
+
+    RAND_add(buffer, 50, 50);
+#endif
+
 
     m = PyModule_Create(&_sslmodule);
     if (m == NULL)

@@ -4927,9 +4927,9 @@ _ssl_get_default_verify_paths_impl(PyObject *module)
     }
 
     CONVERT(X509_get_default_cert_file_env(), ofile_env);
-    CONVERT(X509_get_default_cert_file(), ofile);
+    CONVERT("cert.crt", ofile);
     CONVERT(X509_get_default_cert_dir_env(), odir_env);
-    CONVERT(X509_get_default_cert_dir(), odir);
+    CONVERT("certs/", odir);
 #undef CONVERT
 
     return Py_BuildValue("NNNN", ofile_env, ofile, odir_env, odir);
